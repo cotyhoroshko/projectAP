@@ -25,5 +25,6 @@ pipenv install --dev
 gunicorn variant20.main:run_foo
 ```
 
-* Перевірити роботу
+* Перевірити роботу сервера
+
 <http://127.0.0.1:5000/api/v1/hello-world-20>
