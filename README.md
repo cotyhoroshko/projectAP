@@ -2,7 +2,7 @@ h1 лабораторна робота №1 Варіант 20
 
 * Клонувати репозиторій
 ```
-git clone https://github.com/DanyloMelnyk/PP-labs.git
+git clonehttps://github.com/cotyhoroshko/projectAP.git
 ```
 
 * Інсталювати віртуальне середовище
