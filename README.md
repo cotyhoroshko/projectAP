@@ -2,7 +2,9 @@ h1 лабораторна робота №1 Варіант 20
 
 * Клонувати репозиторій
 ```
-git clonehttps://github.com/cotyhoroshko/projectAP.git
+
+git clone https://github.com/cotyhoroshko/projectAP.git
+
 ```
 
 * Інсталювати віртуальне середовище
@@ -22,7 +24,9 @@ pipenv install --dev
 
 * Запустити сервер
 ```
-gunicorn variant20.main:run_foo
+
+sudo gunicorn -w 4 "variant20.main:run_foo()"
+
 ```
 
 * Перевірити роботу сервера
