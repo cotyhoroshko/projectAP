@@ -1,7 +1,9 @@
 from flask import Flask
 
 
-def run_foo(test: bool = True):
+
+def run_foo():
+
     app = Flask(__name__)
 
     @app.route('/')
