@@ -1,0 +1,474 @@
+openapi: 3.0.1
+
+info:
+  title: Sample API
+  description: API description in Markdown.
+  version: 1.0.0
+
+servers:
+  - url: 'https://127.0.0.1/add'
+
+paths:
+  /adds/add:
+    put:
+      parameters:
+        - name: summary
+          in: query
+          required: true
+          description: Заголовок оголошення
+          schema:
+            type: string
+        - name: text
+          in: query
+          required: true
+          description: Текст оголошення
+          schema:
+            type: string
+        - name: modifier
+          in: query
+          required: false
+          description: Модифікатор доступу
+          schema:
+            type: boolean
+        - name: topic
+          in: query
+          required: true
+          description: Тема оголошення
+          schema:
+            type: string
+            example: nature
+            enum: [ nature, electronic, news ]
+
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - Add
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Add'
+      responses:
+        '201':
+          description: Add added succsesfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Add'
+        '401':
+          description: Authorization Error | Помилка прав доступу. У вас немає необхідних прав
+        '400':
+          description: Server Error | Поганий запит. Невірний синтаксис
+
+  /adds/{topic}:
+    get:
+      tags:
+        - Add
+      summary: Gets adds by topic
+      operationId: getAddsbyTopic
+      parameters:
+        - name: topic
+          in: path
+          required: true
+          description: Тема
+          schema:
+            type: string
+            example: news
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Add'
+        '400':
+          description: Server Error. Bad request | Поганий запит. Невірний синтаксис
+
+  /user/{id}:
+    get:
+      tags:
+        - Users
+      summary: Gets a user by ID.
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Server Error. Bad request | Поганий запит. Невірний синтаксис
+        '404':
+          description: Error 404 | Користувача з таким ID не знайдено
+
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Returns a list of users.
+      description: Optional extended description in Markdown.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+        '400':
+          description: Server Error. Bad request | Поганий запит. Невірний синтаксис
+
+  /sigh-in:
+    get:
+      parameters:
+        - name: email
+          in: query
+          required: true
+          description: Електронна пошта
+          schema:
+            type: string
+            example: ppetrenko@gmail.com
+        - name: password
+          in: query
+          description: Пароль
+          required: true
+          schema:
+            type: string
+            example: dangemaster12
+
+      summary: Видає JWT токен
+      tags:
+        - Authorization
+      security: [ ]
+      description: >
+        Авторизація користувача
+
+
+      responses:
+        '200':
+          headers:
+            Api-Token:
+              $ref: '#/components/headers/Api-Token'
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/AuthUser'
+        '422':
+          description: Помилка 422
+          content:
+            application/json:
+              schema:
+                properties:
+                  errors:
+                    type: object
+                    properties:
+                      email:
+                        type: array
+                        items:
+                          type: string
+                          example: Email введений некоректно
+                      password:
+                        type: array
+                        items:
+                          type: string
+                          example: Пароль не вказано
+  /user:
+    post:
+      parameters:
+          - name: email
+            in: query
+            required: true
+            description: Електронна пошта
+            schema:
+              type: string
+              example: ppetrenko@gmail.com
+          - name: password
+            in: query
+            description: Пароль
+            required: true
+            schema:
+              type: string
+              example: dangemaster12
+          - name: password_again
+            in: query
+            description: Пароль
+            required: true
+            schema:
+              type: string
+              example: dangemaster12
+      tags:
+        - Users
+      summary: Register user
+      requestBody:
+        description: Повертає залогованого створеного користувача
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthUser'
+      responses:
+        '201':
+          description: Створено успішно
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/AuthUser'
+        '400':
+          description: Server Error. Bad request | Поганий запит. Невірний синтаксис
+
+  /logout:
+    get:
+      tags:
+        - Authorization
+      security:
+        - bearerAuth: [ ]
+      summary: Вихід з профілю
+      operationId: userLogout
+      responses:
+        '200':
+          description: Ви вийшли успішно
+        '400':
+          description: Server Error. Bad request | Поганий запит. Невірний синтаксис
+        '401':
+          description: Authorization Error | Помилка прав доступу. У вас немає необхідних прав
+
+  /adds/{topic}/{id}:
+    parameters:
+      - name: topic
+        in: path
+        required: true
+        description: Тема
+        schema:
+          type: string
+          example: Electronic
+      - name: id
+        in: path
+        description: Add ID
+        required: true
+        schema:
+          type: integer
+          format: int64
+          example: 1
+
+    get:
+      tags:
+        - Add
+      summary: Gets an add by ID.
+      operationId: getAddById
+
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Add'
+        '400':
+          description: Server Error. Bad request | Поганий запит. Невірний синтаксис
+        '401':
+          description: Authorization Error | Помилка прав доступу. У вас немає необхідних прав
+        '404':
+          description: Error 404 | Оголошення з таким ID не знайдено
+
+    put:
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: summary
+          in: query
+          required: true
+          description: Заголовок оголошення
+          schema:
+            type: string
+        - name: text
+          in: query
+          required: true
+          description: Текст оголошення
+          schema:
+            type: string
+        - name: modifier
+          in: query
+          required: false
+          description: Модифікатор доступу
+          schema:
+            type: boolean
+
+      tags:
+        - Add
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Add'
+      responses:
+        '201':
+          description: Add added succsesfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Add'
+        '401':
+          description: Authorization Error | Помилка прав доступу. У вас немає необхідних прав
+        '400':
+          description: Server Error. Bad request | Поганий запит. Невірний синтаксис
+
+    post:
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: summary
+          in: query
+          required: true
+          description: Заголовок оголошення
+          schema:
+            type: string
+        - name: text
+          in: query
+          required: true
+          description: Текст оголошення
+          schema:
+            type: string
+        - name: modifier
+          in: query
+          required: false
+          description: Модифікатор доступу
+          schema:
+            type: boolean
+      tags:
+        - Add
+      summary: Change Add with current ID
+      operationId: changeAddbyID
+
+      responses:
+        '201':
+          description: Add changed succsesfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Add'
+        '400':
+          description: Server Error. Bad request | Поганий запит. Невірний синтаксис
+        '401':
+          description: Authorization Error | Помилка прав доступу. У вас немає необхідних прав
+        '404':
+          description: Error 404 | Оголошення з таким ID не знайдено
+
+    delete:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - Add
+      summary: Delete add by ID
+      operationId: deleteAddbyID
+
+      responses:
+        '200':
+          description: Add deleted successfully
+        '400':
+          description: Server Error. bad request | Поганий запит. Невірний синтаксис
+        '401':
+          description: Authorization Error | Помилка прав доступу. У вас немає необхідних прав
+        '404':
+          description: Error 404 | Оголошення з таким ID не знайдено
+
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  headers:
+    Api-Token:
+      schema:
+        type: string
+        example: fbuh43fh8923dn389fh398f3dni0j8
+
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Петро Карпенко
+        email:
+          type: string
+          example: pkarpenko@gmail.com
+
+    AuthUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Петро Карпенко
+        email:
+          type: string
+          example: pkarpenko@gmail.com
+        password:
+          type: string
+          example: normparol123
+
+    Add:
+      type: object
+      properties:
+        modifier:
+          type: boolean
+          example: 1 - public / 0 - local
+          default: 1
+        id:
+          type: integer
+          example: 1
+        summary:
+          type: string
+          example: Продам гараж
+        author:
+          $ref: '#/components/schemas/User'
+        text:
+          type: string
+          example: The new perfect Garaje
+        topic:
+          type: string
+          example: nature
+          enum: [nature, electronic, news]
+      required:
+        - id
+        - summary
+        - author
+        - text
+        - topic
