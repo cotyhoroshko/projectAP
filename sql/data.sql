@@ -1,4 +1,4 @@
-INSERT INTO users(name, email, password_hash) VALUES('Maksym Prihara', 'maxick99@lpnu.ua', 'vfhajshjbdsdfsbdsbj,dsfj'),
+INSERT INTO users(name, email, password_hash) VALUES('Maksym Prihara', 'maxick99@lpnu.ua', 'vfhajshjbdsdfsbdsbjdsfj'),
                                                      ('Vasyl Zibrov', 'nolabs@lnu.ua', 'dufhvfdskajdvk');
 INSERT INTO advertisements(modifier, summary, author_id, description, topic)
 VALUES('local', 'Selling garage', '2', 'Selling a garage on Sykhiv', 'transport'),
