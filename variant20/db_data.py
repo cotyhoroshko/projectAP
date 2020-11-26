@@ -17,3 +17,4 @@ poland = Advertisement(modifier=ModifierEnum.public, summary='Travelling to Pola
 session.add_all([maks, vasyl])
 session.add_all([garage, course_work, poland])
 session.commit()
+session.close()
