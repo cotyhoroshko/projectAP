@@ -2,7 +2,7 @@ CREATE TABLE advertisements(
 id INT AUTO_INCREMENT PRIMARY KEY,
 modifier ENUM('public', 'local'),
 summary VARCHAR (50),
-author_id INT,
+user_id INT,
 description TINYTEXT,
 topic VARCHAR(15)
 );
