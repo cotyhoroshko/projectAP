@@ -9,6 +9,7 @@ gunicorn = "*"
 sqlalchemy = "*"
 pymysql = "*"
 alembic = "*"
+marshmallow = "*"
 
 [dev-packages]
 

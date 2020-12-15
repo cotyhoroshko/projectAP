@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "85880a07e481220aba4fa6eb31568a5c704d2ab55bb8a6fb61d174e07f92933c"
+            "sha256": "ca72df90199780f1d2b24521e997c343b3f6652b6e5789fa6c24938e6aeccd20"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -24,7 +24,7 @@
             "index": "pypi",
             "version": "==1.4.3"
         },
-        "click": вотса{
+        "click": {
             "hashes": [
                 "sha256:d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a",
                 "sha256:dacca89f4bfadd5de3d7489b7c8a566eee0d3676333fbb50030263894c38c0dc"
@@ -110,6 +110,14 @@
             ],
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
             "version": "==1.1.1"
+        },
+        "marshmallow": {
+            "hashes": [
+                "sha256:73facc37462dfc0b27f571bdaffbef7709e19f7a616beb3802ea425b07843f4e",
+                "sha256:e26763201474b588d144dae9a32bdd945cd26a06c943bc746a6882e850475378"
+            ],
+            "index": "pypi",
+            "version": "==3.9.1"
         },
         "pymysql": {
             "hashes": [
