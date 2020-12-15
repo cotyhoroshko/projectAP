@@ -10,6 +10,7 @@ sqlalchemy = "*"
 pymysql = "*"
 alembic = "*"
 marshmallow = "*"
+marshmallow-enum = "*"
 
 [dev-packages]
 
