@@ -11,6 +11,8 @@ pymysql = "*"
 alembic = "*"
 marshmallow = "*"
 marshmallow-enum = "*"
+cryptography = "*"
+bcrypt = "*"
 
 [dev-packages]
 
