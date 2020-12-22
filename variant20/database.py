@@ -5,7 +5,7 @@ from sqlalchemy.dialects.mysql import TINYTEXT
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
-engine = create_engine('mysql+pymysql://sqlalchemy:flaskpass@localhost/flask_app?charset=utf8mb4', echo=True)
+engine = create_engine('mysql+pymysql://lab:password@localhost:3306/pplab?charset=utf8mb4', echo=True)
 Base = declarative_base()
 Session = sessionmaker(bind=engine)
 

@@ -5,6 +5,10 @@ from sqlalchemy import pool
 
 from alembic import context
 
+import os, sys
+parent_dir = os.path.abspath(os.path.join(os.getcwd(), ".."))
+sys.path.append(parent_dir)
+sys.path.append(".")
 from variant20.database import Base
 
 # this is the Alembic Config object, which provides
