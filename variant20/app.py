@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify
 from marshmallow import ValidationError
+from flask_httpauth import HTTPBasicAuth
+from flask_bcrypt import Bcrypt
 from variant20.schemas import UserSchema, AdvertisementSchema
 from variant20.database import Session, User, Advertisement, ModifierEnum
 import bcrypt
@@ -7,6 +9,25 @@ import bcrypt
 
 app = Flask(__name__)
 session = Session()
+auth = HTTPBasicAuth()
+bcryptt = Bcrypt(app)
+
+
+@auth.verify_password
+def verify_password(email, password):
+    user = session.query(User).filter(User.email == email).first()
+    if user is not None and \
+            bcrypt.checkpw(password.encode('utf8'), user.password_hash.encode('utf8')):
+        return jsonify(UserSchema().dump(user)), 200
+
+
+
+
+
+@app.route('/', methods=['GET'])
+@auth.login_required
+def g():
+    return "ou may"
 
 
 @app.route('/advertisements', methods=['GET'])
@@ -16,6 +37,7 @@ def get_ads():
 
 
 @app.route('/advertisements', methods=['POST'])
+@auth.login_required
 def create_ad():
     ad_schema = AdvertisementSchema()
     data = request.get_json()
@@ -53,6 +75,7 @@ def get_ad(ad_topic, ad_id):
 
 
 @app.route('/advertisements/<ad_topic>/<ad_id>', methods=['PUT'])
+@auth.login_required
 def edit_ad(ad_topic, ad_id):
     ad_schema = AdvertisementSchema(only=['id', 'topic'])
     try:
@@ -78,6 +101,7 @@ def edit_ad(ad_topic, ad_id):
 
 
 @app.route('/advertisements/<ad_topic>/<ad_id>', methods=['DELETE'])
+@auth.login_required
 def delete_ad(ad_topic, ad_id):
     ad_schema = AdvertisementSchema(only=['id', 'topic'])
     try:
@@ -145,9 +169,10 @@ def sign_in():
 
 
 @app.route('/logout', methods=['GET'])
+@auth.login_required
 def logout():
     return 'Logout'
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

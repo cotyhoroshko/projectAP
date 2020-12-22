@@ -1,11 +1,12 @@
 import enum
 
+import sqlalchemy.dialects.sqlite
 from sqlalchemy import create_engine, Integer, Column, String, Enum, ForeignKey
 from sqlalchemy.dialects.mysql import TINYTEXT
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
-engine = create_engine('mysql+pymysql://lab:password@localhost:3306/pplab?charset=utf8mb4', echo=True)
+engine = create_engine('mysql+pymysql://ppuser:password@localhost:3306/pp?charset=utf8mb4', echo=True)
 Base = declarative_base()
 Session = sessionmaker(bind=engine)
 
