@@ -94,7 +94,7 @@ def edit_ad(ad_topic, ad_id):
         return 'Advertisement not found', 404
     ad_schema = AdvertisementSchema()
     data = request.get_json()
-    if auth.current_user().role == RoleEnum.master or auth.current_user().id == data['user_id']:
+    if auth.current_user().role == RoleEnum.master or auth.current_user().id == ad.user_id == auth.current_user().id:
         try:
             ad_schema.load(data)
         except ValidationError as err:
@@ -102,7 +102,7 @@ def edit_ad(ad_topic, ad_id):
         ad.summary = ad.summary if 'summary' not in data else data['summary']
         ad.description = ad.description if 'description' not in data else data['description']
         ad.topic = ad.topic if 'topic' not in data else data['topic']
-        ad.modifier = ad.modifier if 'modidier' not in data else data['modifier']
+        ad.modifier = ad.modifier if 'modifier' not in data else data['modifier']
         ad.user_id = ad.user_id if 'user_id' not in data else data['user_id']
         session.commit()
         return ad_schema.dump(ad), 201
