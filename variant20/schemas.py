@@ -1,6 +1,6 @@
 from marshmallow import Schema, fields, post_load, validate
 from marshmallow_enum import EnumField
-from .database import User, Advertisement, ModifierEnum
+from .database import User, Advertisement, ModifierEnum, RoleEnum
 
 
 class UserSchema(Schema):
@@ -8,6 +8,7 @@ class UserSchema(Schema):
     name = fields.String(required=True, validate=validate.Length(max=30))
     email = fields.Email(required=True)
     password_hash = fields.String(required=True, validate=validate.Length(max=512))
+    role = EnumField(RoleEnum, default=RoleEnum.average, missing='average')
 
     @post_load
     def create_user(self, data, **kwargs):

@@ -16,6 +16,11 @@ class ModifierEnum(enum.Enum):
     local = 0
 
 
+class RoleEnum(enum.Enum):
+    average = 1
+    master = 0
+
+
 class Advertisement(Base):
     __tablename__ = 'advertisements'
     id = Column(Integer, primary_key=True)
@@ -32,5 +37,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(30))
     email = Column(String(30))
+    role = Column(Enum(RoleEnum))
     password_hash = Column(String(512))
     advertisements = relationship('Advertisement', back_populates='user')
+

@@ -1,11 +1,11 @@
-from flask import Flask, request, jsonify
-from marshmallow import ValidationError
-from flask_httpauth import HTTPBasicAuth
-from flask_bcrypt import Bcrypt
-from variant20.schemas import UserSchema, AdvertisementSchema
-from variant20.database import Session, User, Advertisement, ModifierEnum
 import bcrypt
+from flask import Flask, request, jsonify
+from flask_bcrypt import Bcrypt
+from flask_httpauth import HTTPBasicAuth
+from marshmallow import ValidationError
 
+from variant20.database import Session, User, Advertisement
+from variant20.schemas import UserSchema, AdvertisementSchema
 
 app = Flask(__name__)
 session = Session()
@@ -18,16 +18,20 @@ def verify_password(email, password):
     user = session.query(User).filter(User.email == email).first()
     if user is not None and \
             bcrypt.checkpw(password.encode('utf8'), user.password_hash.encode('utf8')):
-        return jsonify(UserSchema().dump(user)), 200
-
-
-
+        return user
 
 
 @app.route('/', methods=['GET'])
-@auth.login_required
+@auth.login_required()
 def g():
     return "ou may"
+
+
+@app.route('/a')
+@auth.login_required
+def index():
+    user = auth.current_user()
+    return "Hello, {}!".format(user.email)
 
 
 @app.route('/advertisements', methods=['GET'])
@@ -71,6 +75,7 @@ def get_ad(ad_topic, ad_id):
     ad = session.query(Advertisement).filter(Advertisement.id == ad_id, Advertisement.topic == ad_topic).first()
     if ad is None:
         return 'Advertisement not found', 404
+    app.logger.info(ad.modifier)
     return jsonify(AdvertisementSchema().dump(ad)), 200
 
 
@@ -126,13 +131,14 @@ def get_users():
 def create_user():
     user_schema = UserSchema()
     data = request.get_json()
-    if not session.query(User).filter(User.name == data['name']).first() is None:
-        return 'The name is already taken', 400
+
     if not session.query(User).filter(User.email == data['email']).first() is None:
         return 'The email is already taken', 400
     try:
         user = user_schema.load({'name': data['name'], 'email': data['email'],
-                                 'password_hash':bcrypt.hashpw(data['password_hash'].encode('utf8'), bcrypt.gensalt())})
+                                 'password_hash': bcrypt.hashpw(data['password_hash'].encode('utf8'),
+                                                                bcrypt.gensalt())})
+        user.role = user.role if not 'role' in data else data['role']
     except ValidationError as err:
         return err.messages, 400
     session.add(user)
