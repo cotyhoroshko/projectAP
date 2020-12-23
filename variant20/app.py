@@ -4,7 +4,7 @@ from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
 from marshmallow import ValidationError
 
-from variant20.database import Session, User, Advertisement
+from variant20.database import Session, User, Advertisement, RoleEnum
 from variant20.schemas import UserSchema, AdvertisementSchema
 
 app = Flask(__name__)
@@ -45,6 +45,7 @@ def get_ads():
 def create_ad():
     ad_schema = AdvertisementSchema()
     data = request.get_json()
+    data['user_id'] = auth.current_user().id
     try:
         ad = ad_schema.load(data)
     except ValidationError as err:
@@ -88,21 +89,24 @@ def edit_ad(ad_topic, ad_id):
     except ValidationError as err:
         return err.messages, 400
     ad = session.query(Advertisement).filter(Advertisement.id == ad_id, Advertisement.topic == ad_topic).first()
+
     if ad is None:
         return 'Advertisement not found', 404
     ad_schema = AdvertisementSchema()
     data = request.get_json()
-    try:
-        ad_schema.load(data)
-    except ValidationError as err:
-        return err.messages, 400
-    ad.summary = data['summary']
-    ad.description = data['description']
-    ad.topic = data['topic']
-    ad.modifier = data['modifier']
-    ad.user_id = data['user_id']
-    session.commit()
-    return ad_schema.dump(ad), 201
+    if auth.current_user().role == RoleEnum.master or auth.current_user().id == data['user_id']:
+        try:
+            ad_schema.load(data)
+        except ValidationError as err:
+            return err.messages, 400
+        ad.summary = data['summary']
+        ad.description = data['description']
+        ad.topic = data['topic']
+        ad.modifier = data['modifier']
+        ad.user_id = data['user_id']
+        session.commit()
+        return ad_schema.dump(ad), 201
+    return "You do not have sufficient editing rights", 403
 
 
 @app.route('/advertisements/<ad_topic>/<ad_id>', methods=['DELETE'])

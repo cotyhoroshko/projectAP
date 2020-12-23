@@ -21,7 +21,7 @@ class AdvertisementSchema(Schema):
     description = fields.String(validate=validate.Length(max=256))
     topic = fields.String(required=True, validate=validate.Length(max=15))
     modifier = EnumField(ModifierEnum)
-    user_id = fields.Integer(required=True)
+    user_id = fields.Integer()
 
     @post_load
     def create_advertisement(self, data, **kwargs):
