@@ -99,11 +99,11 @@ def edit_ad(ad_topic, ad_id):
             ad_schema.load(data)
         except ValidationError as err:
             return err.messages, 400
-        ad.summary = data['summary']
-        ad.description = data['description']
-        ad.topic = data['topic']
-        ad.modifier = data['modifier']
-        ad.user_id = data['user_id']
+        ad.summary = ad.summary if 'summary' not in data else data['summary']
+        ad.description = ad.description if 'description' not in data else data['description']
+        ad.topic = ad.topic if 'topic' not in data else data['topic']
+        ad.modifier = ad.modifier if 'modidier' not in data else data['modifier']
+        ad.user_id = ad.user_id if 'user_id' not in data else data['user_id']
         session.commit()
         return ad_schema.dump(ad), 201
     return "You do not have sufficient editing rights", 403
