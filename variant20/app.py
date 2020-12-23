@@ -23,10 +23,12 @@ def verify_password(email, password):
         return "Unauthorized"
 
 
-
 @app.route('/', methods=['GET'])
 @auth.login_required()
 def g():
+    user = auth.current_user()
+    if user == "Unauthorized":
+        return "You do not have sufficient editing rights", 403
     return "ou may"
 
 
@@ -34,13 +36,15 @@ def g():
 @auth.login_required
 def index():
     user = auth.current_user()
+    if user == "Unauthorized":
+        return "UNAUTH"
     return "Hello, {}!".format(user.email)
 
 
 @app.route('/advertisements', methods=['GET'])
 @auth.login_required
 def get_ads():
-    user = auth.current_user()
+    user: object = auth.current_user()
     if user == "Unauthorized":
         ads = session.query(Advertisement).filter(Advertisement.modifier == "public").all()
     else:
@@ -51,6 +55,9 @@ def get_ads():
 @app.route('/advertisements', methods=['POST'])
 @auth.login_required
 def create_ad():
+    user = auth.current_user()
+    if user == "Unauthorized":
+        return "You do not have sufficient editing rights", 403
     ad_schema = AdvertisementSchema()
     data = request.get_json()
     data['user_id'] = auth.current_user().id
@@ -91,6 +98,9 @@ def get_ad(ad_topic, ad_id):
 @app.route('/advertisements/<ad_topic>/<ad_id>', methods=['PUT'])
 @auth.login_required
 def edit_ad(ad_topic, ad_id):
+    user = auth.current_user()
+    if user == "Unauthorized":
+        return "You do not have sufficient editing rights", 403
     ad_schema = AdvertisementSchema(only=['id', 'topic'])
     try:
         ad_schema.load({'id': ad_id, 'topic': ad_topic})
@@ -120,17 +130,24 @@ def edit_ad(ad_topic, ad_id):
 @app.route('/advertisements/<ad_topic>/<ad_id>', methods=['DELETE'])
 @auth.login_required
 def delete_ad(ad_topic, ad_id):
+    user = auth.current_user()
+    if user == "Unauthorized":
+        return "You do not have sufficient editing rights", 403
     ad_schema = AdvertisementSchema(only=['id', 'topic'])
     try:
         ad_schema.load({'id': ad_id, 'topic': ad_topic})
     except ValidationError as err:
         return err.messages, 400
     ad = session.query(Advertisement).filter(Advertisement.id == ad_id, Advertisement.topic == ad_topic).first()
-    if ad is None:
-        return 'Advertisement not found', 404
-    session.delete(ad)
-    session.commit()
-    return "Advertisement deleted successfully"
+    if auth.current_user().role == RoleEnum.master or auth.current_user().id == ad.user_id == auth.current_user().id:
+        ad = session.query(Advertisement).filter(Advertisement.id == ad_id, Advertisement.topic == ad_topic).first()
+        if ad is None:
+            return 'Advertisement not found', 404
+        session.delete(ad)
+        session.commit()
+
+        return "Advertisement deleted successfully"
+    return "You do not have sufficient editing rights", 403
 
 
 @app.route('/users', methods=['GET'])
@@ -171,25 +188,6 @@ def get_user(user_id):
     return jsonify(UserSchema().dump(user)), 200
 
 
-@app.route('/sign-in', methods=['GET'])
-def sign_in():
-    email = request.args.get('email')
-    password = request.args.get('password')
-
-    user = session.query(User).filter(User.email == email).first()
-    if user is None:
-        return "Email not found", 400
-
-    if not bcrypt.checkpw(password.encode('utf8'), user.password_hash.encode('utf8')):
-        return "Wrong password", 400
-
-    return jsonify(UserSchema().dump(user)), 200
-
-
-@app.route('/logout', methods=['GET'])
-@auth.login_required
-def logout():
-    return 'Logout'
 
 
 if __name__ == '__main__':

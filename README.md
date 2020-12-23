@@ -47,3 +47,52 @@ sudo gunicorn -w 4 "variant20.main:run_foo()"
         "topic": "study",
         "user_id": 1
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@app.route('/sign-in', methods=['GET'])
+@auth.login_required
+def sign_in():
+
+    # email = request.args.get('email')
+    # password = request.args.get('password')
+    user = auth.current_user()
+    if user == "Unauthorized":
+        return "You do not have sufficient editing rights", 403
+    email = auth.current_user().email
+    password = auth.current_user().password_hash
+
+    user = session.query(User).filter(User.email == email).first()
+    if user is None:
+        return "Email not found", 400
+
+    if not bcrypt.checkpw(password.encode('utf8'), user.password_hash.encode('utf8')):
+        return "Wrong password", 400
+    t = auth.current_user()
+    app.logger.info(t)
+
+    app.logger.info(t)
+
+    return jsonify(UserSchema().dump(user)), 200
+
+
+@app.route('/logout')
+@auth.login_required
+def logout():
+    auth.current_user().logout_user()
+    return 'Logout', 401
