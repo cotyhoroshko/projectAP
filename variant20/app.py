@@ -19,6 +19,9 @@ def verify_password(email, password):
     if user is not None and \
             bcrypt.checkpw(password.encode('utf8'), user.password_hash.encode('utf8')):
         return user
+    else:
+        return "Unauthorized"
+
 
 
 @app.route('/', methods=['GET'])
@@ -35,8 +38,13 @@ def index():
 
 
 @app.route('/advertisements', methods=['GET'])
+@auth.login_required
 def get_ads():
-    ads = session.query(Advertisement).all()
+    user = auth.current_user()
+    if user == "Unauthorized":
+        ads = session.query(Advertisement).filter(Advertisement.modifier == "public").all()
+    else:
+        ads = session.query(Advertisement).all()
     return jsonify(AdvertisementSchema(many=True).dump(ads)), 200
 
 
