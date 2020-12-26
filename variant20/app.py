@@ -71,13 +71,21 @@ def create_ad():
 
 
 @app.route('/advertisements/<ad_topic>', methods=['GET'])
+@auth.login_required
 def get_ads_by_topic(ad_topic):
     ad_schema = AdvertisementSchema(only=['topic'])
     try:
         ad_schema.load({'topic': ad_topic})
     except ValidationError as err:
         return err.messages, 400
-    ads = session.query(Advertisement).filter_by(topic=ad_topic).all()
+    user: object = auth.current_user()
+    if user == "Unauthorized":
+        ads = session.query(Advertisement).filter(
+            Advertisement.modifier == "public",
+            Advertisement.topic == ad_topic
+            ).all()
+    else:
+        ads = session.query(Advertisement).filter(Advertisement.topic == ad_topic).all()
     return jsonify(AdvertisementSchema(many=True).dump(ads)), 200
 
 
@@ -146,7 +154,7 @@ def delete_ad(ad_topic, ad_id):
         session.delete(ad)
         session.commit()
 
-        return "Advertisement deleted successfully"
+        return "Advertisement deleted successfully", 200
     return "You do not have sufficient editing rights", 403
 
 
