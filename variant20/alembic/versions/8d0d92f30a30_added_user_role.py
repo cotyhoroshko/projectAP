@@ -1,8 +1,8 @@
-"""create table schemas
+"""added user.role
 
-Revision ID: fc4fa31b8590
+Revision ID: 8d0d92f30a30
 Revises: 
-Create Date: 2020-11-26 22:18:30.075309
+Create Date: 2020-12-23 02:02:02.342625
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = 'fc4fa31b8590'
+revision = '8d0d92f30a30'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,6 +22,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=30), nullable=True),
     sa.Column('email', sa.String(length=30), nullable=True),
+    sa.Column('role', sa.Enum('average', 'master', name='roleenum'), nullable=True),
     sa.Column('password_hash', sa.String(length=512), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )

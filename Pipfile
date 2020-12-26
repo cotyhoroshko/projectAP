@@ -7,14 +7,15 @@ name = "pypi"
 flask = "*"
 gunicorn = "*"
 sqlalchemy = "*"
-pymysql = "*"
 alembic = "*"
 marshmallow = "*"
 marshmallow-enum = "*"
 cryptography = "*"
 bcrypt = "*"
+pymysql = "*"
+
 
 [dev-packages]
 
 [requires]
-python_version = "3.8"
+python_version = "3.8
