@@ -226,3 +226,9 @@ def test_get_by_id(client):
 
     assert post_data == get_data
     assert get_data['user_id'] == auth_id
+
+
+def test_get_by_topic(client):
+    resp = client.get('/advertisements/topic1')
+
+    assert len(resp.get_json()) == 2
