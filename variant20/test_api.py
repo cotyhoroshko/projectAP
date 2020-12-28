@@ -50,3 +50,21 @@ def client():
     seed_users(client)
     seed_ads(client)
     return client
+
+
+def test_unauthorized_get_adv(client):
+    resp = client.get('/advertisements')
+    data = resp.get_json()
+    local_count = len(list(filter(lambda x: x['modifier'] == 'local', data)))
+    assert local_count == 0
+    assert len(data) == 3
+    assert resp.status_code == 200
+
+
+def test_authorized_get_adv(client):
+    credentials = b64encode(b'alice@testmail.ua:pass456').decode('utf-8')
+    resp = client.get('/advertisements',
+                      headers={'Authorization': f'Basic {credentials}'})
+    data = resp.get_json()
+    assert len(data) == 5
+    assert resp.status_code == 200
