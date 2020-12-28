@@ -41,22 +41,6 @@ def create_app(is_test=False):
         else:
             return "Unauthorized"
 
-    @app.route('/', methods=['GET'])
-    @auth.login_required()
-    def g():
-        user = auth.current_user()
-        if user == "Unauthorized":
-            return "You do not have sufficient editing rights", 403
-        return "ou may"
-
-    @app.route('/a')
-    @auth.login_required
-    def index():
-        user = auth.current_user()
-        if user == "Unauthorized":
-            return "UNAUTH"
-        return "Hello, {}!".format(user.email)
-
     @app.route('/advertisements', methods=['GET'])
     @auth.login_required
     def get_ads():
