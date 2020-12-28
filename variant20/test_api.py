@@ -206,3 +206,23 @@ def test_anon_post(client):
                                         'topic': 'topic123', 'modifier': 'public'}))
 
     assert resp.status_code == 403
+
+
+def test_get_by_id(client):
+    credentials = b64encode(b'alice@testmail.ua:pass456').decode('utf-8')
+    req_data = {'summary': 's123', 'description': 'desc123',
+                'topic': 'topic123', 'modifier': 'public'}
+    auth_id = list(filter(lambda x: x['name'] == 'alice', client.get(
+        '/users').get_json()))[0]['id']
+
+    post_resp = client.post('/advertisements', content_type='application/json',
+                            data=json.dumps(req_data), headers={'Authorization': f'Basic {credentials}'})
+    post_data = post_resp.get_json()
+    ad_topic = req_data['topic']
+    ad_id = post_data['id']
+
+    get_resp = client.get(f'/advertisements/{ad_topic}/{ad_id}')
+    get_data = get_resp.get_json()
+
+    assert post_data == get_data
+    assert get_data['user_id'] == auth_id
