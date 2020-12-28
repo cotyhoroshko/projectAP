@@ -152,3 +152,49 @@ def test_put_master(client):
 
     assert resp.status_code == 201
     assert resp_data['summary'] == 'summary555'
+
+
+def test_delete_non_author(client):
+    credentials = b64encode(b'jane@testmail.ua:pass789').decode('utf-8')
+    users = client.get('/users').get_json()
+    alice_id = list(filter(lambda x: x['name'] == 'alice', users))[0]['id']
+    ads = client.get('/advertisements').get_json()
+    alice_ad: dict = list(filter(lambda x: x['user_id'] == alice_id, ads))[0]
+    ad_topic = alice_ad['topic']
+    ad_id = alice_ad['id']
+
+    resp = client.delete(f'/advertisements/{ad_topic}/{ad_id}',
+                         headers={'Authorization': f'Basic {credentials}'})
+
+    assert resp.status_code == 403
+
+
+def test_delete_anonymous(client):
+    users = client.get('/users').get_json()
+    alice_id = list(filter(lambda x: x['name'] == 'alice', users))[0]['id']
+    ads = client.get('/advertisements').get_json()
+    alice_ad: dict = list(filter(lambda x: x['user_id'] == alice_id, ads))[0]
+    ad_topic = alice_ad['topic']
+    ad_id = alice_ad['id']
+
+    resp = client.delete(f'/advertisements/{ad_topic}/{ad_id}')
+
+    assert resp.status_code == 403
+
+
+def test_delete_author(client):
+    credentials = b64encode(b'alice@testmail.ua:pass456').decode('utf-8')
+    users = client.get('/users').get_json()
+    alice_id = list(filter(lambda x: x['name'] == 'alice', users))[0]['id']
+    ads = client.get('/advertisements').get_json()
+    ads_before = len(ads)
+    alice_ad: dict = list(filter(lambda x: x['user_id'] == alice_id, ads))[0]
+    ad_topic = alice_ad['topic']
+    ad_id = alice_ad['id']
+
+    client.delete(f'/advertisements/{ad_topic}/{ad_id}',
+                  headers={'Authorization': f'Basic {credentials}'})
+
+    ads_after = len(client.get('/advertisements').get_json())
+
+    assert ads_after == ads_before - 1
