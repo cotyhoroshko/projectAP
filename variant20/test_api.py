@@ -232,3 +232,17 @@ def test_get_by_topic(client):
     resp = client.get('/advertisements/topic1')
 
     assert len(resp.get_json()) == 2
+
+
+def test_get_user_by_id(client):
+    req_data = {'name': 'mike', 'email': 'mike@testmail.ua', 'password_hash': 'testpass'}
+
+    post_resp = client.post('/users', data=json.dumps(req_data),
+                            content_type='application/json')
+    post_data = post_resp.get_json()
+    created_id = post_data['id']
+    get_resp = client.get(f'/users/{created_id}')
+    get_data = get_resp.get_json()
+
+    assert req_data['name'] == post_data['name']
+    assert get_data == post_data
