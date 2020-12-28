@@ -11,11 +11,14 @@ alembic = "*"
 marshmallow = "*"
 marshmallow-enum = "*"
 cryptography = "*"
-bcrypt = "*"
+flask_bcrypt = "*"
 pymysql = "*"
+Flask-HTTPAuth = "*"
+pytest = "*"
+sqlite = "*"
 
 
 [dev-packages]
 
 [requires]
-python_version = "3.8
+python_version = "3.8"
