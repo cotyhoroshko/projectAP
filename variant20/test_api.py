@@ -198,3 +198,11 @@ def test_delete_author(client):
     ads_after = len(client.get('/advertisements').get_json())
 
     assert ads_after == ads_before - 1
+
+
+def test_anon_post(client):
+    resp = client.post('/advertisements', content_type='application/json',
+                       data=json.dumps({'summary': 'summ123', 'description': 'desc123',
+                                        'topic': 'topic123', 'modifier': 'public'}))
+
+    assert resp.status_code == 403
