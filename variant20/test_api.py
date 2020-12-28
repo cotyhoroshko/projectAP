@@ -81,3 +81,74 @@ def test_user_id_of_ad(client):
 
     assert selected_ad['user_id'] == creator_id
 
+
+def test_put_non_author(client):
+    credentials = b64encode(b'jane@testmail.ua:pass789').decode('utf-8')
+    users = client.get('/users').get_json()
+    alice_id = list(filter(lambda x: x['name'] == 'alice', users))[0]['id']
+    ads = client.get('/advertisements').get_json()
+    alice_ad: dict = list(filter(lambda x: x['user_id'] == alice_id, ads))[0]
+    ad_topic = alice_ad['topic']
+    ad_id = alice_ad['id']
+
+    resp = client.put(f'/advertisements/{ad_topic}/{ad_id}',
+                      content_type='application/json',
+                      headers={'Authorization': f'Basic {credentials}'},
+                      data=json.dumps({'summary': 'summary555'}))
+
+    assert resp.status_code == 403
+
+
+def test_put_anonymous(client):
+    users = client.get('/users').get_json()
+    alice_id = list(filter(lambda x: x['name'] == 'alice', users))[0]['id']
+    ads = client.get('/advertisements').get_json()
+    alice_ad: dict = list(filter(lambda x: x['user_id'] == alice_id, ads))[0]
+    ad_topic = alice_ad['topic']
+    ad_id = alice_ad['id']
+
+    resp = client.put(f'/advertisements/{ad_topic}/{ad_id}',
+                      content_type='application/json',
+                      data=json.dumps({'summary': 'summary555'}))
+
+    assert resp.status_code == 403
+
+
+def test_put_author(client):
+    credentials = b64encode(b'alice@testmail.ua:pass456').decode('utf-8')
+    users = client.get('/users').get_json()
+    alice_id = list(filter(lambda x: x['name'] == 'alice', users))[0]['id']
+    ads = client.get('/advertisements').get_json()
+    alice_ad: dict = list(filter(lambda x: x['user_id'] == alice_id, ads))[0]
+    ad_topic = alice_ad['topic']
+    ad_id = alice_ad['id']
+
+    resp = client.put(f'/advertisements/{ad_topic}/{ad_id}',
+                      content_type='application/json',
+                      headers={'Authorization': f'Basic {credentials}'},
+                      data=json.dumps({'summary': 'summary555'}))
+
+    resp_data = resp.get_json()
+
+    assert resp.status_code == 201
+    assert resp_data['summary'] == 'summary555'
+
+
+def test_put_master(client):
+    credentials = b64encode(b'bob@testmail.ua:pass123').decode('utf-8')
+    users = client.get('/users').get_json()
+    alice_id = list(filter(lambda x: x['name'] == 'alice', users))[0]['id']
+    ads = client.get('/advertisements').get_json()
+    alice_ad: dict = list(filter(lambda x: x['user_id'] == alice_id, ads))[0]
+    ad_topic = alice_ad['topic']
+    ad_id = alice_ad['id']
+
+    resp = client.put(f'/advertisements/{ad_topic}/{ad_id}',
+                      content_type='application/json',
+                      headers={'Authorization': f'Basic {credentials}'},
+                      data=json.dumps({'summary': 'summary555'}))
+
+    resp_data = resp.get_json()
+
+    assert resp.status_code == 201
+    assert resp_data['summary'] == 'summary555'
