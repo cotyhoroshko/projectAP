@@ -1,6 +1,6 @@
 from database import Session, User, Advertisement, ModifierEnum
 
-def seed_db(session)
+def seed_db(session):
     maks = User(name='Maksym Prihara', email='maxick99@lpnu.ua', password_hash='vfhajshjbdsdfsbdsbjdsfj')
     vasyl = User(name='Vasl Zibrov', email='nolabs@lnu.ua', password_hash='dufhvfdskajdvk')
 
