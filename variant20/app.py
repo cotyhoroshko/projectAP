@@ -136,6 +136,8 @@ def create_app(is_test=False):
             return 'Advertisement not found', 404
         ad_schema = AdvertisementSchema()
         data = request.get_json()
+        data['topic'] = ad_topic
+        data['id'] = ad_id
         if auth.current_user().role == RoleEnum.master or \
                 auth.current_user().id == ad.user_id == auth.current_user().id:
             try:
