@@ -3,8 +3,6 @@ from flask import Flask, request, jsonify
 from flask_httpauth import HTTPBasicAuth
 from marshmallow import ValidationError
 
-import os
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -14,10 +12,9 @@ from variant20.database import User, Advertisement, RoleEnum, Base
 from variant20.schemas import UserSchema, AdvertisementSchema
 
 
-def create_app():
+def create_app(is_test=False):
     app = Flask(__name__)
-    use_in_mem = os.environ['FLASK_IN_MEM'] == '1'
-    if not use_in_mem:
+    if not is_test:
         engine = create_engine(
             'mysql+pymysql://sqlalchemy:flaskpass@localhost/flask_app?charset=utf8mb4')
     else:
