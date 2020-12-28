@@ -4,12 +4,33 @@ from flask_bcrypt import Bcrypt
 from flask_httpauth import HTTPBasicAuth
 from marshmallow import ValidationError
 
-from variant20.database import Session, User, Advertisement, RoleEnum
+import os
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
+
+from variant20.database import User, Advertisement, RoleEnum, Base
 from variant20.schemas import UserSchema, AdvertisementSchema
 
 def create_app():
     app = Flask(__name__)
+    use_in_mem = os.environ['FLASK_IN_MEM'] == '1'
+    if not use_in_mem:
+        engine = create_engine('mysql+pymysql://sqlalchemy:flaskpass@localhost/flask_app?charset=utf8mb4')
+    else:
+        engine = create_engine(
+            "sqlite://", 
+            connect_args={"check_same_thread": False}, 
+            poolclass=StaticPool
+        )
+
+        print('created db')
+        Base.metadata.create_all(engine)
+
+    Session = sessionmaker(bind=engine)
     session = Session()
+
     auth = HTTPBasicAuth()
     bcryptt = Bcrypt(app)
 
