@@ -68,3 +68,16 @@ def test_authorized_get_adv(client):
     data = resp.get_json()
     assert len(data) == 5
     assert resp.status_code == 200
+
+
+def test_user_id_of_ad(client):
+    resp = client.get('/advertisements')
+    data = resp.get_json()
+    selected_ad: dict = list(filter(lambda x: x['summary'] == 's1', data))[0]
+    users_resp = client.get('/users')
+    user_data = users_resp.get_json()
+    creator_id = list(filter(lambda x: x['name'] == 'alice', user_data))[
+        0]['id']
+
+    assert selected_ad['user_id'] == creator_id
+
