@@ -1,9 +1,8 @@
 import enum
 
-import sqlalchemy.dialects.sqlite
-from sqlalchemy import create_engine, Integer, Column, String, Enum, ForeignKey
+from sqlalchemy import Integer, Column, String, Enum, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
