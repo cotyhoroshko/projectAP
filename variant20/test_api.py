@@ -150,8 +150,15 @@ def test_put_master(client):
 
     resp_data = resp.get_json()
 
+    resp_non_valid = client.put(f'/advertisements/{ad_topic}/{ad_id}',
+                                content_type='application/json',
+                                headers={
+                                    'Authorization': f'Basic {credentials}'},
+                                data=json.dumps({'topic': 'more_than_15_characters'}))
+
     assert resp.status_code == 201
     assert resp_data['summary'] == 'summary555'
+    assert resp_non_valid.status_code == 400
 
 
 def test_delete_non_author(client):
@@ -232,10 +239,13 @@ def test_get_by_topic(client):
     resp = client.get('/advertisements/topic1')
 
     assert len(resp.get_json()) == 2
+    assert client.get(
+        '/advertisements/more_than_15_characters').status_code == 400
 
 
 def test_get_user_by_id(client):
-    req_data = {'name': 'mike', 'email': 'mike@testmail.ua', 'password_hash': 'testpass'}
+    req_data = {'name': 'mike', 'email': 'mike@testmail.ua',
+                'password_hash': 'testpass'}
 
     post_resp = client.post('/users', data=json.dumps(req_data),
                             content_type='application/json')
@@ -244,5 +254,10 @@ def test_get_user_by_id(client):
     get_resp = client.get(f'/users/{created_id}')
     get_data = get_resp.get_json()
 
+    wrong_data = {'name': 'john', 'email': 'johnattestdotua', 'password_hash': 'johns_pass'}
+    bad_resp = client.post('/users', data=json.dumps(wrong_data), content_type='application/json')
+
     assert req_data['name'] == post_data['name']
     assert get_data == post_data
+    assert client.get('/users/123').status_code == 404
+    assert bad_resp.status_code == 400
